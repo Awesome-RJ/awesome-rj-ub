@@ -176,10 +176,10 @@ async def gsearch(q_event):
     try:
         page = page[0]
         page = page.replace("page=", "")
-        match = match.replace("page=" + page[0], "")
+        match = match.replace(f"page={page[0]}", "")
     except IndexError:
         page = 1
-    search_args = (str(match), int(page), bool(cache))
+    search_args = str(match), page, bool(cache)
     gsearch = GoogleSearch()
     gresults = await gsearch.async_search(*search_args)
     msg = ""
@@ -230,10 +230,7 @@ async def rextester(event):
             else:
                 lang = "python3"
                 codee = omk
-            if lang == "php":
-                code = f"<?php {codee} ?>"
-            else:
-                code = codee
+            code = f"<?php {codee} ?>" if lang == "php" else codee
             output = await rexec_aio(lang, code)
             stats = output.stats
             if output.errors is not None:
@@ -279,10 +276,10 @@ async def yahoosearch(q_event):
     try:
         page = page[0]
         page = page.replace("page=", "")
-        match = match.replace("page=" + page[0], "")
+        match = match.replace(f"page={page[0]}", "")
     except IndexError:
         page = 1
-    search_args = (str(match), int(page), bool(cache))
+    search_args = str(match), page, bool(cache)
     gsearch = YahooSearch()
     gresults = await gsearch.async_search(*search_args)
     msg = ""
@@ -380,8 +377,7 @@ async def _(e):
         await e.answer(
             [], switch_pm="Mod Apps Search. Enter app name!", switch_pm_param="start"
         )
-    page = 1
-    start = (page - 1) * 3 + 1
+    start = 0 * 3 + 1
     da = choice([api1, api2, api3])
     url = f"https://www.googleapis.com/customsearch/v1?key={da}&cx=25b3b50edb928435b&q={quer}&start={start}"
     data = requests.get(url).json()
@@ -433,9 +429,7 @@ async def clip(e):
     bs = BeautifulSoup(html, "html.parser", from_encoding="utf-8")
     resul = bs.find_all("img", "attachment-full size-full")
     buil = e.builder
-    hm = []
-    for res in resul:
-        hm += [buil.photo(include_media=True, file=res["src"])]
+    hm = [buil.photo(include_media=True, file=res["src"]) for res in resul]
     await e.answer(
         hm, gallery=True, switch_pm="Clipart Searcher.", switch_pm_param="start"
     )

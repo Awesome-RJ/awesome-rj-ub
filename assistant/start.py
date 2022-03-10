@@ -133,26 +133,25 @@ async def bdcast(event):
         themssg = response.message.message
         if themssg == "/cancel":
             return await conv.send_message("Cancelled!!")
-        else:
-            success = 0
-            fail = 0
-            await conv.send_message(f"Starting a broadcast to {len(ok)} users...")
-            start = datetime.now()
-            for i in ok:
-                try:
-                    await asst.send_message(int(i), f"{themssg}")
-                    success += 1
-                except BaseException:
-                    fail += 1
-            end = datetime.now()
-            time_taken = (end - start).seconds
-            await conv.send_message(
-                f"""
+        success = 0
+        fail = 0
+        await conv.send_message(f"Starting a broadcast to {len(ok)} users...")
+        start = datetime.now()
+        for i in ok:
+            try:
+                await asst.send_message(int(i), f"{themssg}")
+                success += 1
+            except BaseException:
+                fail += 1
+        end = datetime.now()
+        time_taken = (end - start).seconds
+        await conv.send_message(
+            f"""
 Broadcast completed in {time_taken} seconds.
 Total Users in Bot - {len(ok)}
 Sent to {success} users.
 Failed for {fail} user(s).""",
-            )
+        )
 
 
 @callback("setter")

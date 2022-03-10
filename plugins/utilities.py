@@ -122,10 +122,12 @@ async def _(event):
     if BOT_MODE:
         return await eor(ult, "You Cant Use this Command in BOT MODE")
     result = await ultroid_bot(GetAdminedPublicChannelsRequest())
-    output_str = ""
     r = result.chats
-    for channel_obj in r:
-        output_str += f"- {channel_obj.title} @{channel_obj.username} \n"
+    output_str = "".join(
+        f"- {channel_obj.title} @{channel_obj.username} \n"
+        for channel_obj in r
+    )
+
     if not r:
         await eor(event, "`Not username Reserved`")
     else:
@@ -155,32 +157,30 @@ async def stats(
     dialog: Dialog
     async for dialog in ultroid_bot.iter_dialogs():
         entity = dialog.entity
-        if isinstance(entity, Channel):
-            if entity.broadcast:
-                broadcast_channels += 1
-                if entity.creator or entity.admin_rights:
-                    admin_in_broadcast_channels += 1
-                if entity.creator:
-                    creator_in_channels += 1
+        if isinstance(entity, Channel) and entity.broadcast:
+            broadcast_channels += 1
+            if entity.creator or entity.admin_rights:
+                admin_in_broadcast_channels += 1
+            if entity.creator:
+                creator_in_channels += 1
 
-            elif entity.megagroup:
-                groups += 1
-                if entity.creator or entity.admin_rights:
-                    admin_in_groups += 1
-                if entity.creator:
-                    creator_in_groups += 1
-
-        elif isinstance(entity, User):
-            private_chats += 1
-            if entity.bot:
-                bots += 1
-
-        elif isinstance(entity, Chat):
+        elif (
+            isinstance(entity, Channel)
+            and entity.megagroup
+            or not isinstance(entity, Channel)
+            and not isinstance(entity, User)
+            and isinstance(entity, Chat)
+        ):
             groups += 1
             if entity.creator or entity.admin_rights:
                 admin_in_groups += 1
             if entity.creator:
                 creator_in_groups += 1
+
+        elif not isinstance(entity, Channel) and isinstance(entity, User):
+            private_chats += 1
+            if entity.bot:
+                bots += 1
 
         unread_mentions += dialog.unread_mentions_count
         unread += dialog.unread_count
@@ -245,20 +245,14 @@ async def _(event):
         message = "`Include long text / Reply to text file`"
     if downloaded_file_name and downloaded_file_name.endswith(".py"):
         data = message
-        key = (
-            requests.post("https://nekobin.com/api/documents", json={"content": data})
-            .json()
-            .get("result")
-            .get("key")
-        )
     else:
         data = message
-        key = (
-            requests.post("https://nekobin.com/api/documents", json={"content": data})
-            .json()
-            .get("result")
-            .get("key")
-        )
+    key = (
+        requests.post("https://nekobin.com/api/documents", json={"content": data})
+        .json()
+        .get("result")
+        .get("key")
+    )
     q = f"paste {key}"
     reply_text = f"• **Pasted to Nekobin :** [Neko](https://nekobin.com/{key})\n• **Raw Url :** : [Raw](https://nekobin.com/raw/{key})"
     try:
@@ -455,29 +449,22 @@ async def telegraphcmd(event):
             try:
                 variable = uf(getit)
                 os.remove(getit)
-                nn = "https://telegra.ph" + variable[0]
+                nn = f"https://telegra.ph{variable[0]}"
                 amsg = f"Uploaded to [Telegraph]({nn}) !"
             except Exception as e:
                 amsg = f"Error - {e}"
             await xx.edit(amsg)
         elif getmsg.document:
             getit = await ultroid_bot.download_media(getmsg)
-            ab = open(getit)
-            cd = ab.read()
-            ab.close()
-            if input_str:
-                tcom = input_str
-            else:
-                tcom = "Ultroid"
+            with open(getit) as ab:
+                cd = ab.read()
+            tcom = input_str or "Ultroid"
             makeit = telegraph.create_page(title=tcom, content=[f"{cd}"])
             war = makeit["url"]
             os.remove(getit)
             await xx.edit(f"Pasted to Telegraph : [Telegraph]({war})")
         elif getmsg.text:
-            if input_str:
-                tcom = input_str
-            else:
-                tcom = "Ultroid"
+            tcom = input_str or "Ultroid"
             makeit = telegraph.create_page(title=tcom, content=[f"{getmsg.text}"])
             war = makeit["url"]
             await xx.edit(f"Pasted to Telegraph : [Telegraph]({war})")
@@ -515,33 +502,32 @@ async def _(event):
 
 @ultroid_cmd(pattern="suggest")
 async def sugg(event):
-    if await event.get_reply_message():
-        msgid = (await event.get_reply_message()).id
-        try:
-            await ultroid.send_message(
-                event.chat_id,
-                file=InputMediaPoll(
-                    poll=Poll(
-                        id=12345,
-                        question="Do you agree to the replied suggestion?",
-                        answers=[PollAnswer("Yes", b"1"), PollAnswer("No", b"2")],
-                    ),
-                ),
-                reply_to=msgid,
-            )
-        except Exception as e:
-            return await eod(
-                event,
-                f"`Oops, you can't send polls here!\n\n{str(e)}`",
-                time=5,
-            )
-        await event.delete()
-    else:
+    if not await event.get_reply_message():
         return await eod(
             event,
             "`Please reply to a message to make a suggestion poll!`",
             time=5,
         )
+    msgid = (await event.get_reply_message()).id
+    try:
+        await ultroid.send_message(
+            event.chat_id,
+            file=InputMediaPoll(
+                poll=Poll(
+                    id=12345,
+                    question="Do you agree to the replied suggestion?",
+                    answers=[PollAnswer("Yes", b"1"), PollAnswer("No", b"2")],
+                ),
+            ),
+            reply_to=msgid,
+        )
+    except Exception as e:
+        return await eod(
+            event,
+            f"`Oops, you can't send polls here!\n\n{str(e)}`",
+            time=5,
+        )
+    await event.delete()
 
 
 @ultroid_cmd(pattern="ipinfo ?(.*)")

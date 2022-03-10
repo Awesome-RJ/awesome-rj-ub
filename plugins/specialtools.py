@@ -122,7 +122,7 @@ async def hbd(event):
     mi = int(pehl)
     sec = (pehl - mi) * 60
     slive = int(sec)
-    y = int(s) + int(saal) + 1
+    y = int(s) + saal + 1
     m = int(r)
     brth = dt(y, m, day)
     cm = dt(abhi.year, brth.month, brth.day)
@@ -135,9 +135,7 @@ async def hbd(event):
         hp = f"{okk} Days Left 🥳"
     elif dan > 0:
         hp = f"{ish} Days Left 🥳"
-    if month == "12":
-        sign = "Sagittarius" if (day < 22) else "Capricorn"
-    elif month == "01":
+    if month == "01":
         sign = "Capricorn" if (day < 20) else "Aquarius"
     elif month == "02":
         sign = "Aquarius" if (day < 19) else "Pisces"
@@ -159,6 +157,8 @@ async def hbd(event):
         sign = "Libra" if (day < 23) else "Scorpion"
     elif month == "11":
         sign = "Scorpio" if (day < 22) else "Sagittarius"
+    elif month == "12":
+        sign = "Sagittarius" if (day < 22) else "Capricorn"
     sign = f"{sign}"
     params = (("sign", sign), ("today", day))
     response = requests.post("https://aztro.sameerkumar.website/", params=params)
@@ -202,7 +202,7 @@ async def _(event):
     if not x:
         return await eor(event, "`Give something to search`")
     uu = await eor(event, "`Processing...`")
-    z = request.get("https://combot.org/telegram/stickers?q=" + x).text
+    z = request.get(f"https://combot.org/telegram/stickers?q={x}").text
     xx = b(z, "lxml")
     title = xx.find_all("div", "sticker-pack__title")
     link = xx.find_all("a", target="_blank")

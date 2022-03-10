@@ -36,7 +36,7 @@ if vcbot is not None:
                 data["chat"]["id"], f"Please add `{name}`` in this group."
             )
         except Exception as ex:
-            return await bot.send_message(data["chat"]["id"], "`" + str(ex) + "`")
+            return await bot.send_message(data["chat"]["id"], f"`{str(ex)}`")
         try:
             full_chat = await vcbot(GetFullChannelRequest(chat))
         except ValueError:
@@ -45,7 +45,7 @@ if vcbot is not None:
                 data["chat"]["id"], f"`Please add {stree} in this group.`"
             )
         except Exception as ex:
-            return await bot.send_message(data["chat"]["id"], "`" + str(ex) + "`")
+            return await bot.send_message(data["chat"]["id"], f"`{str(ex)}`")
         try:
             call = await vcbot(GetGroupCallRequest(full_chat.full_chat.call))
         except BaseException:
@@ -85,7 +85,7 @@ if vcbot is not None:
                 f"`Joined Voice Chat in {(await bot.get_entity(data['chat']['id'])).title}`",
             )
         except Exception as ex:
-            return await bot.send_message(data["chat"]["id"], "`" + str(ex) + "`")
+            return await bot.send_message(data["chat"]["id"], f"`{str(ex)}`")
 
         transport = json.loads(result.updates[0].call.params.data)["transport"]
 
@@ -112,8 +112,9 @@ if vcbot is not None:
         except Exception as ex:
             return await bot.send_message(
                 data["chat"]["id"],
-                "Exception in GetFullChannelRequest ```" + str(ex) + "```",
+                f"Exception in GetFullChannelRequest ```{str(ex)}```",
             )
+
         try:
             call = full_chat.full_chat.call
         except BaseException:
@@ -132,8 +133,9 @@ if vcbot is not None:
         except Exception as ex:
             return await bot.send_message(
                 data["chat"]["id"],
-                "Exception in LeaveGroupCallRequest: `" + str(ex) + "`",
+                f"Exception in LeaveGroupCallRequest: `{str(ex)}`",
             )
+
         return {"_": "left_vc", "data": {"chat_id": data["chat"]["id"]}}
 
     async def websocket_handler(request):

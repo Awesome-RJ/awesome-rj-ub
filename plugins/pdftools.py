@@ -51,12 +51,9 @@ async def pdfseimg(event):
     k = time.time()
     filename = "hehe.pdf"
     result = await downloader(
-        "pdf/" + filename,
-        file,
-        xx,
-        k,
-        "Downloading " + filename + "...",
+        f"pdf/{filename}", file, xx, k, f"Downloading {filename}..."
     )
+
     await xx.delete()
     pdfp = "pdf/hehe.pdf"
     pdfp.replace(".pdf", "")
@@ -103,13 +100,7 @@ async def pdfsetxt(event):
     file = ok.media.document
     k = time.time()
     filename = ok.file.name
-    result = await downloader(
-        filename,
-        file,
-        xx,
-        k,
-        "Downloading " + filename + "...",
-    )
+    result = await downloader(filename, file, xx, k, f"Downloading {filename}...")
     await xx.delete()
     dl = result.name
     if not msg:
@@ -133,33 +124,23 @@ async def pdfsetxt(event):
     if "_" in msg:
         u, d = msg.split("_")
         a = PdfFileReader(dl)
-        str = ""
-        for i in range(int(u) - 1, int(d)):
-            str += a.getPage(i).extractText()
+        str = "".join(a.getPage(i).extractText() for i in range(int(u) - 1, int(d)))
         text = f"{dl.split('.')[0]} {msg}.txt"
-        with open(text, "w") as f:
-            f.write(str)
-        await event.client.send_file(
-            event.chat_id,
-            text,
-            reply_to=event.reply_to_msg_id,
-        )
-        os.remove(text)
-        os.remove(dl)
     else:
         u = int(msg) - 1
         a = PdfFileReader(dl)
         str = a.getPage(u).extractText()
         text = f"{dl.split('.')[0]} Pg-{msg}.txt"
-        with open(text, "w") as f:
-            f.write(str)
-        await event.client.send_file(
-            event.chat_id,
-            text,
-            reply_to=event.reply_to_msg_id,
-        )
-        os.remove(text)
-        os.remove(dl)
+
+    with open(text, "w") as f:
+        f.write(str)
+    await event.client.send_file(
+        event.chat_id,
+        text,
+        reply_to=event.reply_to_msg_id,
+    )
+    os.remove(text)
+    os.remove(dl)
 
 
 @ultroid_cmd(
@@ -181,7 +162,7 @@ async def imgscan(event):
     ratio = image.shape[0] / 500.0
     image = imutils.resize(image, height=500)
     image_yuv = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
-    image_y = np.zeros(image_yuv.shape[0:2], np.uint8)
+    image_y = np.zeros(image_yuv.shape[:2], np.uint8)
     image_y[:, :] = image_yuv[:, :, 0]
     image_blurred = cv2.GaussianBlur(image_y, (3, 3), 0)
     edges = cv2.Canny(image_blurred, 50, 200, apertureSize=3)
@@ -238,7 +219,7 @@ async def savepdf(event):
         ratio = image.shape[0] / 500.0
         image = imutils.resize(image, height=500)
         image_yuv = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
-        image_y = np.zeros(image_yuv.shape[0:2], np.uint8)
+        image_y = np.zeros(image_yuv.shape[:2], np.uint8)
         image_y[:, :] = image_yuv[:, :, 0]
         image_blurred = cv2.GaussianBlur(image_y, (3, 3), 0)
         edges = cv2.Canny(image_blurred, 50, 200, apertureSize=3)
@@ -297,8 +278,7 @@ async def sendpdf(event):
             "first select pages by replying .pdsave of which u want to make multi page pdf file",
         )
         return
-    msg = event.pattern_match.group(1)
-    if msg:
+    if msg := event.pattern_match.group(1):
         ok = f"{msg}.pdf"
     else:
         ok = "My PDF File.pdf"

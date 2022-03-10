@@ -27,7 +27,7 @@ from . import *
 async def an(e):
     wrd = (e.pattern_match.group(1)).lower()
     wt = await e.get_reply_message()
-    if not (wt and wrd):
+    if not wt or not wrd:
         return await eor(e, "Give word to set as snip and reply to a message.")
     if "$" in wrd:
         wrd = wrd.replace("$", "")
@@ -37,15 +37,14 @@ async def an(e):
             dl = await bot.download_media(wt.media)
             variable = uf(dl)
             os.remove(dl)
-            m = "https://telegra.ph" + variable[0]
+            m = f"https://telegra.ph{variable[0]}"
         elif wut == "video":
             if wt.media.document.size > 8 * 1000 * 1000:
                 return await eod(x, "`Unsupported Media`")
-            else:
-                dl = await bot.download_media(wt.media)
-                variable = uf(dl)
-                os.remove(dl)
-                m = "https://telegra.ph" + variable[0]
+            dl = await bot.download_media(wt.media)
+            variable = uf(dl)
+            os.remove(dl)
+            m = f"https://telegra.ph{variable[0]}"
         else:
             m = pack_bot_file_id(wt.media)
         if wt.text:
@@ -70,8 +69,7 @@ async def rs(e):
 
 @ultroid_cmd(pattern="listsnip")
 async def lsnote(e):
-    x = list_snip()
-    if x:
+    if x := list_snip():
         sd = "SNIPS Found :\n\n"
         await eor(e, sd + x)
     else:
@@ -88,8 +86,7 @@ async def notes(e):
     if x:
         if " " in xx:
             xx = xx.split(" ")[0]
-        k = get_reply(xx)
-        if k:
+        if k := get_reply(xx):
             msg = k["msg"]
             media = k["media"]
             rep = await e.get_reply_message()

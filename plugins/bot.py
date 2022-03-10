@@ -59,7 +59,7 @@ except BaseException:
 async def lol(ult):
     pic = udB.get("ALIVE_PIC")
     uptime = grt(time.time() - start_time)
-    header = udB.get("ALIVE_TEXT") if udB.get("ALIVE_TEXT") else "Hey,  I am alive."
+    header = udB.get("ALIVE_TEXT") or "Hey,  I am alive."
     y = Repo().active_branch
     xx = Repo().remotes[0].config_reader.get("url")
     rep = xx.replace(".git", f"/tree/{y}")
@@ -76,7 +76,7 @@ async def lol(ult):
     )
     if pic is None:
         return await eor(ult, als)
-    elif pic is not None and "telegra" in pic:
+    elif "telegra" in pic:
         try:
             await ultroid_bot.send_message(
                 ult.chat_id, als, file=pic, link_preview=False
@@ -127,9 +127,8 @@ async def restartbt(ult):
 
 @ultroid_cmd(pattern="shutdown")
 async def shutdownbot(ult):
-    if not ult.out:
-        if not is_fullsudo(ult.sender_id):
-            return await eod(ult, "`This Command Is Sudo Restricted.`")
+    if not ult.out and not is_fullsudo(ult.sender_id):
+        return await eod(ult, "`This Command Is Sudo Restricted.`")
     try:
         dyno = ult.text.split(" ", maxsplit=1)[1]
     except IndexError:
@@ -156,8 +155,6 @@ async def _(event):
         return await def_logs(event)
     if opt == "heroku":
         await heroku_logs(event)
-    elif opt == "sys":
-        await def_logs(event)
     else:
         await def_logs(event)
 

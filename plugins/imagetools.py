@@ -496,8 +496,7 @@ async def ultd(event):
 
 @ultroid_cmd(pattern="csample (.*)")
 async def sampl(ult):
-    color = ult.pattern_match.group(1)
-    if color:
+    if color := ult.pattern_match.group(1):
         img = Image.new("RGB", (200, 100), f"{color}")
         img.save("csample.png")
         try:
@@ -512,7 +511,7 @@ async def sampl(ult):
             await eor(ult, "Umm! Sending Media is disabled here!")
 
     else:
-        await eor(ult, f"Wrong Color Name/Hex Code specified!")
+        await eor(ult, "Wrong Color Name/Hex Code specified!")
 
 
 @ultroid_cmd(

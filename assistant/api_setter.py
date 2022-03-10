@@ -36,9 +36,8 @@ async def rmbgapi(event):
                 "Cancelled!!",
                 buttons=get_back_button("apiset"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                f"{name} changed to {themssg}",
-                buttons=get_back_button("apiset"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            f"{name} changed to {themssg}",
+            buttons=get_back_button("apiset"),
+        )

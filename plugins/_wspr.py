@@ -115,8 +115,9 @@ async def _(e):
             logi = await ultroid_bot.get_entity(query)
             button = [
                 Button.inline("Secret Msg", data=f"dd_{logi.id}"),
-                Button.inline("Delete Msg", data=f"del"),
+                Button.inline("Delete Msg", data="del"),
             ]
+
             us = logi.username
             sur = e.builder.article(
                 title=f"{logi.first_name}",
@@ -128,10 +129,7 @@ async def _(e):
             buddhhu.append(logi.id)
             snap.update({logi.id: desc})
         except ValueError:
-            sur = e.builder.article(
-                title="Type ur msg",
-                text=f"You Didn't Type Your Msg",
-            )
+            sur = e.builder.article(title="Type ur msg", text="You Didn't Type Your Msg")
     await e.answer([sur])
 
 

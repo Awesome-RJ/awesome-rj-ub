@@ -34,7 +34,7 @@ async def autopic(e):
     while True:
         for lie in clls:
             ge = udB.get("AUTOPIC")
-            if not ge == "True":
+            if ge != "True":
                 return
             au = "https://unsplash.com" + lie["href"]
             et = await ultroid_bot(getweb(au))
@@ -56,7 +56,7 @@ async def autopic(e):
 @ultroid_cmd(pattern="stoppic$")
 async def stoppo(ult):
     gt = udB.get("AUTOPIC")
-    if not gt == "True":
+    if gt != "True":
         return await eod(ult, "AUTOPIC was not in used !!")
     udB.set("AUTOPIC", "None")
     await eod(ult, "AUTOPIC Stopped !!")

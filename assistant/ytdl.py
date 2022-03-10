@@ -115,8 +115,8 @@ async def _(sur):
     else:
         thumb = None
 
-    c_time = time.time()
     if song:
+        c_time = time.time()
         await sur.edit(
             f"`Preparing to upload song:`\
         \n**{ytdl_data['title']}**\
@@ -125,7 +125,7 @@ async def _(sur):
         MSG = f"**{ytdl_data['title']}** Uploaded Successfully !"
         chat = sur.chat_id
         whome = ultroid_bot
-        if sur.is_private and sur.sender_id != ultroid_bot.uid:
+        if sur.is_private and sur.sender_id != whome.uid:
             chat = sur.sender_id
             whome = asst
             MSG += f"\nGet at {asst.me.username}"
@@ -198,8 +198,8 @@ async def _(fuk):
     video = True
     ytdl_data = await dler(fuk, opts, url)
 
-    c_time = time.time()
     if video:
+        c_time = time.time()
         await fuk.edit(
             f"`Preparing to upload video:`\
         \n**{ytdl_data['title']}**\
@@ -208,7 +208,7 @@ async def _(fuk):
         MSG = f"**{ytdl_data['title']}** Uploaded Successfully !"
         chat = fuk.chat_id
         whome = ultroid_bot
-        if event.is_private and event.sender_id != ultroid_bot.uid:
+        if event.is_private and event.sender_id != whome.uid:
             chat = fuk.sender_id
             whome = asst
             MSG += f"\nGet at {asst.me.username}"
@@ -216,7 +216,7 @@ async def _(fuk):
             await whome.send_file(
                 chat,
                 f"{ytdl_data['id']}.mp4",
-                thumb=f"./resources/extras/ultroid.jpg",
+                thumb="./resources/extras/ultroid.jpg",
                 caption=f"**{ytdl_data['title']}\n{time_formatter((ytdl_data['duration'])*1000)}\n{ytdl_data['uploader']}**",
                 supports_streaming=True,
                 progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
@@ -230,11 +230,12 @@ async def _(fuk):
                     ),
                 ),
             )
+
         except UserNotParticipantError:
             await asst.send_file(
                 chat,
                 f"{ytdl_data['id']}.mp4",
-                thumb=f"./resources/extras/ultroid.jpg",
+                thumb="./resources/extras/ultroid.jpg",
                 caption=f"**{ytdl_data['title']}\n{time_formatter((ytdl_data['duration'])*1000)}\n{ytdl_data['uploader']}**",
                 supports_streaming=True,
                 progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
@@ -248,6 +249,7 @@ async def _(fuk):
                     ),
                 ),
             )
+
         os.remove(f"{ytdl_data['id']}.mp4")
         await fuk.edit(
             MSG,

@@ -22,7 +22,7 @@ TOKEN_FILE = "resources/auths/auth_token.txt"
 async def send(eve):
     name = (eve.data_match.group(1)).decode("UTF-8")
     if name.startswith("def"):
-        plug_name = name.replace(f"def_plugin_", "")
+        plug_name = name.replace("def_plugin_", "")
         plugin = f"plugins/{plug_name}.py"
         buttons = [
             [
@@ -37,7 +37,7 @@ async def send(eve):
             ],
         ]
     else:
-        plug_name = name.replace(f"add_plugin_", "")
+        plug_name = name.replace("add_plugin_", "")
         plugin = f"addons/{plug_name}.py"
         buttons = [
             [
@@ -84,8 +84,9 @@ async def update(eve):
         ups_rem.fetch(ac_br)
         repo.git.reset("--hard", "FETCH_HEAD")
         heroku_git_url = heroku_app.git_url.replace(
-            "https://", "https://api:" + Var.HEROKU_API + "@"
+            "https://", f"https://api:{Var.HEROKU_API}@"
         )
+
         if "heroku" in repo.remotes:
             remote = repo.remote("heroku")
             remote.set_url(heroku_git_url)
@@ -116,18 +117,17 @@ async def changes(okk):
     repo = Repo.init()
     ac_br = repo.active_branch
     changelog, tl_chnglog = await gen_chlog(repo, f"HEAD..upstream/{ac_br}")
-    changelog_str = changelog + f"\n\nClick the below button to update!"
+    changelog_str = f"{changelog}\\n\\nClick the below button to update!"
     if len(changelog_str) > 1024:
         await okk.edit(get_string("upd_4"))
-        file = open(f"ultroid_updates.txt", "w+")
-        file.write(tl_chnglog)
-        file.close()
+        with open("ultroid_updates.txt", "w+") as file:
+            file.write(tl_chnglog)
         await okk.edit(
             get_string("upd_5"),
             file="ultroid_updates.txt",
             buttons=Button.inline("Update Now", data="updatenow"),
         )
-        remove(f"ultroid_updates.txt")
+        remove("ultroid_updates.txt")
         return
     else:
         await okk.edit(
@@ -141,9 +141,8 @@ async def changes(okk):
 @owner
 async def _(e):
     ok = (e.data_match.group(1)).decode("UTF-8")
-    hmm = open(ok)
-    hmmm = hmm.read()
-    hmm.close()
+    with open(ok) as hmm:
+        hmmm = hmm.read()
     key = (
         requests.post("https://nekobin.com/api/documents", json={"content": hmmm})
         .json()
@@ -416,12 +415,11 @@ async def tagloggerr(event):
                 "Cancelled!!",
                 buttons=get_back_button("otvars"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                f"{name} changed to {themssg}",
-                buttons=get_back_button("otvars"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            f"{name} changed to {themssg}",
+            buttons=get_back_button("otvars"),
+        )
 
 
 @callback("eaddon")
@@ -526,12 +524,11 @@ async def sfgrp(event):
                 "Cancelled!!",
                 buttons=get_back_button("sfban"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                f"{name} changed to {themssg}",
-                buttons=get_back_button("sfban"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            f"{name} changed to {themssg}",
+            buttons=get_back_button("sfban"),
+        )
 
 
 @callback("sfexf")
@@ -543,8 +540,9 @@ async def sfexf(event):
     pru = event.sender_id
     async with asst.conversation(pru) as conv:
         await conv.send_message(
-            f"Send the Fed IDs you want to exclude in the ban. Split by a space.\neg`id1 id2 id3`\nSet is as `None` if you dont want any.\nUse /cancel to go back.",
+            "Send the Fed IDs you want to exclude in the ban. Split by a space.\\neg`id1 id2 id3`\\nSet is as `None` if you dont want any.\\nUse /cancel to go back."
         )
+
         response = conv.wait_event(events.NewMessage(chats=pru))
         response = await response
         themssg = response.message.message
@@ -553,12 +551,11 @@ async def sfexf(event):
                 "Cancelled!!",
                 buttons=get_back_button("sfban"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                f"{name} changed to {themssg}",
-                buttons=get_back_button("sfban"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            f"{name} changed to {themssg}",
+            buttons=get_back_button("sfban"),
+        )
 
 
 @callback("alvcstm")
@@ -594,15 +591,14 @@ async def name(event):
                 "Cancelled!!",
                 buttons=get_back_button("alvcstm"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                "{} changed to {}\n\nAfter Setting All Things Do restart".format(
-                    name,
-                    themssg,
-                ),
-                buttons=get_back_button("alvcstm"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            "{} changed to {}\n\nAfter Setting All Things Do restart".format(
+                name,
+                themssg,
+            ),
+            buttons=get_back_button("alvcstm"),
+        )
 
 
 @callback("alvmed")
@@ -629,7 +625,7 @@ async def media(event):
         media = await event.client.download_media(response, "alvpc")
         if (
             not (response.text).startswith("/")
-            and not response.text == ""
+            and response.text != ""
             and not response.media
         ):
             url = response.text
@@ -705,20 +701,19 @@ async def name(event):
                 "Cancelled!!",
                 buttons=get_back_button("pmcstm"),
             )
-        else:
-            if len(themssg) > 4090:
-                return await conv.send_message(
-                    "Message too long!\nGive a shorter message please!!",
-                    buttons=get_back_button("pmcstm"),
-                )
-            await setit(event, var, themssg)
-            await conv.send_message(
-                "{} changed to {}\n\nAfter Setting All Things Do restart".format(
-                    name,
-                    themssg,
-                ),
+        if len(themssg) > 4090:
+            return await conv.send_message(
+                "Message too long!\nGive a shorter message please!!",
                 buttons=get_back_button("pmcstm"),
             )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            "{} changed to {}\n\nAfter Setting All Things Do restart".format(
+                name,
+                themssg,
+            ),
+            buttons=get_back_button("pmcstm"),
+        )
 
 
 @callback("swarn")
@@ -775,7 +770,7 @@ async def media(event):
         media = await event.client.download_media(response, "pmpc")
         if (
             not (response.text).startswith("/")
-            and not response.text == ""
+            and response.text != ""
             and not response.media
         ):
             url = response.text
@@ -828,7 +823,7 @@ async def apon(event):
     var = "AUTOAPPROVE"
     await setit(event, var, "True")
     await event.edit(
-        f"Done!! AUTOAPPROVE  Started!!",
+        "Done!! AUTOAPPROVE  Started!!",
         buttons=[[Button.inline("« Bᴀᴄᴋ", data="apauto")]],
     )
 
@@ -868,7 +863,7 @@ async def pmlog(event):
     var = "PMLOG"
     await setit(event, var, "True")
     await event.edit(
-        f"Done!! PMLOGGER  Started!!",
+        "Done!! PMLOGGER  Started!!",
         buttons=[[Button.inline("« Bᴀᴄᴋ", data="pml")]],
     )
 
@@ -909,7 +904,7 @@ async def pmonn(event):
     var = "PMSETTING"
     await setit(event, var, "True")
     await event.edit(
-        f"Done! PMPermit has been turned on!!",
+        "Done! PMPermit has been turned on!!",
         buttons=[[Button.inline("« Bᴀᴄᴋ", data="ppmset")]],
     )
 
@@ -920,7 +915,7 @@ async def pmofff(event):
     var = "PMSETTING"
     await setit(event, var, "False")
     await event.edit(
-        f"Done! PMPermit has been turned off!!",
+        "Done! PMPermit has been turned off!!",
         buttons=[[Button.inline("« Bᴀᴄᴋ", data="ppmset")]],
     )
 
@@ -929,7 +924,7 @@ async def pmofff(event):
 @owner
 async def chbot(event):
     await event.edit(
-        f"From This Feature U can chat with ppls Via ur Assistant Bot.\n[More info](https://t.me/UltroidUpdates/2)",
+        "From This Feature U can chat with ppls Via ur Assistant Bot.\\n[More info](https://t.me/UltroidUpdates/2)",
         buttons=[
             [Button.inline("Cʜᴀᴛ Bᴏᴛ  Oɴ", data="onchbot")],
             [Button.inline("Cʜᴀᴛ Bᴏᴛ  Oғғ", data="ofchbot")],
@@ -959,15 +954,14 @@ async def name(event):
                 "Cancelled!!",
                 buttons=get_back_button("chatbot"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                "{} changed to {}".format(
-                    name,
-                    themssg,
-                ),
-                buttons=get_back_button("chatbot"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            "{} changed to {}".format(
+                name,
+                themssg,
+            ),
+            buttons=get_back_button("chatbot"),
+        )
 
 
 @callback("onchbot")
@@ -996,7 +990,7 @@ async def chon(event):
 @owner
 async def vcb(event):
     await event.edit(
-        f"From This Feature U can play songs in group voice chat\n\n[moreinfo](https://t.me/UltroidUpdates/4)",
+        "From This Feature U can play songs in group voice chat\\n\\n[moreinfo](https://t.me/UltroidUpdates/4)",
         buttons=[
             [Button.inline("VC Sᴇssɪᴏɴ", data="vcs")],
             [Button.inline("« Bᴀᴄᴋ", data="setter")],
@@ -1024,12 +1018,11 @@ async def name(event):
                 "Cancelled!!",
                 buttons=get_back_button("vcb"),
             )
-        else:
-            await setit(event, var, themssg)
-            await conv.send_message(
-                "{} changed to {}\n\nAfter Setting All Things Do restart".format(
-                    name,
-                    themssg,
-                ),
-                buttons=get_back_button("vcb"),
-            )
+        await setit(event, var, themssg)
+        await conv.send_message(
+            "{} changed to {}\n\nAfter Setting All Things Do restart".format(
+                name,
+                themssg,
+            ),
+            buttons=get_back_button("vcb"),
+        )

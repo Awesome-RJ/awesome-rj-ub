@@ -5,15 +5,13 @@
     See changelogs if any update is available.
 """
 
+
 from git import Repo
 from telethon.tl.functions.channels import ExportMessageLinkRequest as GetLink
 
 from . import *
 
-ULTPIC = "resources/extras/inline.jpg"
-CL = udB.get("INLINE_PIC")
-if CL:
-    ULTPIC = CL
+ULTPIC = CL if (CL := udB.get("INLINE_PIC")) else "resources/extras/inline.jpg"
 
 
 @ultroid_cmd(pattern="update$")
